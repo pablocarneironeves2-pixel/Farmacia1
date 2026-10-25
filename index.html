@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PharmaControl Enterprise Ultimate - ERP & PDV</title>
+    <!-- FontAwesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Folha de Estilos Externa -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- TELA DE LOGIN INSTITUCIONAL -->
+    <div id="login-screen" class="login-overlay">
+        <div class="login-card float-card">
+            <div class="brand-login">
+                <i class="fa-solid fa-square-plus"></i>
+                <h2>Pharma<span>Control</span></h2>
+                <p>Acesso Restrito ao Sistema ERP</p>
+            </div>
+            <form onsubmit="realizarLogin(event)">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-user"></i> Selecione o Usuário / Perfil:</label>
+                    <select id="login-user-select" onchange="preencherSenhaPadrao()">
+                        <option value="gerente">Administrador / Gerente (Acesso Total)</option>
+                        <option value="farmaceutico">Dr. Carlos - Farmacêutico (CRF-BA)</option>
+                        <option value="balconista">João - Balconista / Caixa</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-lock"></i> Senha de Acesso:</label>
+                    <input type="password" id="login-pass" required placeholder="Sua senha">
+                </div>
+                <button type="submit" class="btn btn-emerald full-width">Entrar no Sistema</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- BARRA LATERAL (SIDEBAR) COM LOGO CENTRALIZADA -->
+        <aside class="sidebar" id="app-sidebar">
+            <div class="brand" onclick="switchTab('home')" style="cursor: pointer;" title="Voltar ao Início">
+                <div class="logo-centralizada">
+                    <i class="fa-solid fa-square-plus"></i>
+                    <h2>Pharma<span>Control</span></h2>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="switchTab('home')">
+                    <i class="fa-solid fa-house"></i> Início (Hub Central)
+                </button>
+                <button class="nav-item" onclick="switchTab('dashboard')">
+                    <i class="fa-solid fa-chart-pie"></i> Dashboard Geral
+                </button>
+                <button class="nav-item" onclick="switchTab('pdv')">
+                    <i class="fa-solid fa-cash-register"></i> Frente de Caixa (PDV)
+                </button>
+                <button class="nav-item" onclick="switchTab('caixa')">
+                    <i class="fa-solid fa-vault"></i> Gestão de Caixa & Turno
+                </button>
+                <button class="nav-item" onclick="switchTab('estoque')">
+                    <i class="fa-solid fa-boxes-stacked"></i> Estoque, Lotes & SNGPC
+                </button>
+                <button class="nav-item" onclick="switchTab('curvaabc')">
+                    <i class="fa-solid fa-chart-column"></i> Curva ABC de Estoque
+                </button>
+                <button class="nav-item" onclick="switchTab('comissoes')">
+                    <i class="fa-solid fa-percent"></i> Comissões Vendedores
+                </button>
+                <button class="nav-item" onclick="switchTab('sorteio')">
+                    <i class="fa-solid fa-gift"></i> Sorteio de Produtos
+                </button>
+                <button class="nav-item" onclick="switchTab('orcamentocliente')">
+                    <i class="fa-brands fa-whatsapp"></i> Orçamento WhatsApp (Cliente)
+                </button>
+                <button class="nav-item" onclick="switchTab('funcionarios')">
+                    <i class="fa-solid fa-user-tie"></i> Funcionários & Permissões
+                </button>
+                <button class="nav-item" onclick="switchTab('compras')">
+                    <i class="fa-solid fa-truck-ramp-box"></i> Compras & Fornecedores
+                </button>
+                <button class="nav-item" onclick="switchTab('clientes')">
+                    <i class="fa-solid fa-users"></i> Clientes & Crediário
+                </button>
+                <button class="nav-item" onclick="switchTab('empresa')">
+                    <i class="fa-solid fa-building"></i> Dados da Empresa & PIX
+                </button>
+                <button class="nav-item" onclick="switchTab('relatorios')">
+                    <i class="fa-solid fa-chart-line"></i> DRE & Relatórios
+                </button>
+                <button class="nav-item" onclick="switchTab('vendas')">
+                    <i class="fa-solid fa-receipt"></i> Histórico de Vendas
+                </button>
+                <button class="nav-item" onclick="switchTab('avaliacoes')">
+                    <i class="fa-solid fa-star"></i> Avaliações
+                </button>
+            </nav>
+            <div class="sidebar-footer">
+                <p><i class="fa-solid fa-user-shield"></i> <span id="logged-user-label">GERENTE</span> | <a href="#" onclick="logout()" style="color:var(--danger); text-decoration:none;">Sair</a></p>
+            </div>
+        </aside>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content" id="app-main-content">
+            <!-- TOPO / HEADER -->
+            <header class="top-header" id="app-top-header">
+                <div class="header-left-group">
+                    <div class="nav-history-buttons">
+                        <button class="btn btn-outline" onclick="navegarHistorico(-1)" title="Voltar página"><i class="fa-solid fa-arrow-left"></i></button>
+                        <button class="btn btn-outline" onclick="navegarHistorico(1)" title="Avançar página"><i class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                    <div class="header-title">
+                        <h1 id="page-title">Página Inicial - Central de Comandos</h1>
+                        <p>Controle corporativo total com inteligência farmacêutica</p>
+                    </div>
+                </div>
+                <div class="header-user">
+                    <button class="btn btn-outline" onclick="alternarModoEscuro()" title="Alternar Modo Escuro" style="padding: 8px 12px; border-radius: 50%;">
+                        <i class="fa-solid fa-moon" id="dark-icon" style="font-size: 1.1rem;"></i>
+                    </button>
+                    <div class="user-profile-box">
+                        <div class="user-avatar">
+                            <i class="fa-solid fa-user-doctor"></i>
+                        </div>
+                        <div>
+                            <h4 id="header-user-name">Administrador / Gerente</h4>
+                            <small>CRF-BA 12345 | Caixa: <span id="status-caixa-badge" class="badge vermelho">FECHADO</span></small>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- SEÇÃO 0: HOME / CENTRAL DE COMANDOS -->
+            <section id="tab-home" class="tab-pane active">
+                <div class="welcome-banner float-card">
+                    <div>
+                        <h2><i class="fa-solid fa-prescription-bottle-medical"></i> PharmaControl Enterprise Ultimate v11.5</h2>
+                        <p>Gestão de caixa completa com relatórios simples e detalhados para impressora térmica.</p>
+                    </div>
+                    <button class="btn btn-emerald" onclick="switchTab('pdv')"><i class="fa-solid fa-bolt"></i> Abrir PDV Agora</button>
+                </div>
+
+                <h3 class="section-title"><i class="fa-solid fa-compass"></i> Módulos do Sistema</h3>
+                <div class="modules-grid">
+                    <div class="module-card float-card" onclick="switchTab('pdv')">
+                        <div class="module-icon emerald"><i class="fa-solid fa-cash-register"></i></div>
+                        <h3>Frente de Caixa (PDV)</h3>
+                        <p>Vendas rápidas com bipe USB, indicação de vendedor e cupom térmico.</p>
+                        <span class="module-link">Acessar PDV <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+
+                    <div class="module-card float-card" onclick="switchTab('caixa')">
+                        <div class="module-icon blue"><i class="fa-solid fa-vault"></i></div>
+                        <h3>Gestão de Caixa & Turno</h3>
+                        <p>Abertura, sangrias, relatórios térmicos simples e detalhados de turnos.</p>
+                        <span class="module-link">Gerenciar Caixa <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+
+                    <div class="module-card float-card" onclick="switchTab('estoque')">
+                        <div class="module-icon amber"><i class="fa-solid fa-boxes-stacked"></i></div>
+                        <h3>Estoque, Lotes & SNGPC</h3>
+                        <p>Validades, tarjas e retenção obrigatória de receitas médicas Anvisa.</p>
+                        <span class="module-link">Ver Estoque <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+
+                    <div class="module-card float-card" onclick="switchTab('comissoes')">
+                        <div class="module-icon purple"><i class="fa-solid fa-percent"></i></div>
+                        <h3>Comissões de Vendedores</h3>
+                        <p>Cálculo automático de comissões por volume de vendas individuais.</p>
+                        <span class="module-link">Ver Comissões <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+
+                    <div class="module-card float-card" onclick="switchTab('sorteio')">
+                        <div class="module-icon emerald"><i class="fa-solid fa-gift"></i></div>
+                        <h3>Sorteio de Produtos</h3>
+                        <p>Realize sorteios de brindes e medicamentos entre seus clientes cadastrados.</p>
+                        <span class="module-link">Sortear Brinde <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+
+                    <div class="module-card float-card" onclick="switchTab('orcamentocliente')">
+                        <div class="module-icon whatsapp-bg"><i class="fa-brands fa-whatsapp"></i></div>
+                        <h3>Orçamento Cliente (WhatsApp)</h3>
+                        <p>Página exclusiva com link automático para o cliente montar o orçamento.</p>
+                        <span class="module-link">Acessar Orçamento <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+
+                    <div class="module-card float-card" onclick="switchTab('empresa')">
+                        <div class="module-icon blue"><i class="fa-solid fa-building"></i></div>
+                        <h3>Dados da Empresa & PIX</h3>
+                        <p>Edite CNPJ, chave PIX e QR Code protegido por senha.</p>
+                        <span class="module-link">Configurar PIX <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+
+                    <div class="module-card float-card" onclick="switchTab('funcionarios')">
+                        <div class="module-icon purple"><i class="fa-solid fa-user-tie"></i></div>
+                        <h3>Funcionários & Permissões</h3>
+                        <p>Gerencie o que cada colaborador tem autorização para realizar no sistema.</p>
+                        <span class="module-link">Gerenciar Permissões <i class="fa-solid fa-arrow-right"></i></span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 1: DASHBOARD -->
+            <section id="tab-dashboard" class="tab-pane">
+                <div class="metrics-grid">
+                    <div class="metric-card float-card">
+                        <div class="metric-icon emerald"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="metric-info">
+                            <span>Vendas Hoje</span>
+                            <h3 id="dash-total-vendas">R$ 0,00</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card float-card">
+                        <div class="metric-icon blue"><i class="fa-solid fa-pills"></i></div>
+                        <div class="metric-info">
+                            <span>Itens Cadastrados</span>
+                            <h3 id="dash-total-itens">0</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card float-card">
+                        <div class="metric-icon amber"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="metric-info">
+                            <span>Estoque Crítico</span>
+                            <h3 id="dash-estoque-baixo">0</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card float-card">
+                        <div class="metric-icon purple"><i class="fa-solid fa-calendar-xmark"></i></div>
+                        <div class="metric-info">
+                            <span>Próx. Vencimento</span>
+                            <h3 id="dash-vencimento">0</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <div class="card float-card">
+                        <h3><i class="fa-solid fa-bolt"></i> Ações Rápidas</h3>
+                        <div class="quick-actions">
+                            <button class="btn-action" onclick="switchTab('caixa')"><i class="fa-solid fa-vault"></i> Gestão de Caixa / Abertura</button>
+                            <button class="btn-action" onclick="switchTab('pdv')"><i class="fa-solid fa-cart-shopping"></i> Iniciar Venda no PDV</button>
+                            <button class="btn-action" onclick="switchTab('sorteio')"><i class="fa-solid fa-gift"></i> Sortear Produto para Cliente</button>
+                            <button class="btn-action" onclick="switchTab('orcamentocliente')"><i class="fa-brands fa-whatsapp"></i> Copiar Link de Orçamento</button>
+                        </div>
+                    </div>
+                    <div class="card float-card">
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas Transações do Caixa</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Horário</th>
+                                        <th>Vendedor</th>
+                                        <th>Pagamento</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dash-recent-sales">
+                                    <tr><td colspan="5" class="text-center">Nenhuma venda realizada hoje.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 2: PDV (FRENTE DE CAIXA) -->
+            <section id="tab-pdv" class="tab-pane">
+                <div class="pdv-layout">
+                    <div class="pdv-products">
+                        <div class="search-bar" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                                <i class="fa-solid fa-barcode" style="color: var(--primary); font-size: 1.2rem;"></i>
+                                <input type="text" id="pdv-search" placeholder="Bipe a pistola ou digite nome/EAN..." onkeydown="tratarBuscaPDV(event)">
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;" onclick="alternarVisibilidadeImagensPDV()" id="btn-toggle-img" title="Ocultar/Mostrar Imagens"><i class="fa-solid fa-image"></i> Ocultar Imagens</button>
+                                <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.85rem;" onclick="abrirLeitorCamera()"><i class="fa-solid fa-camera"></i> Câmera</button>
+                            </div>
+                        </div>
+                        <div class="products-grid" id="pdv-product-list"></div>
+                    </div>
+                    <div class="pdv-cart card float-card">
+                        <h3><i class="fa-solid fa-cart-shopping"></i> Carrinho & Atendimento</h3>
+                        <div id="interaction-alert-box" style="display:none;" class="interaction-alert">
+                            <i class="fa-solid fa-triangle-exclamation"></i> <strong>Alerta Farmacêutico:</strong> Possível interação medicamentosa detectada!
+                        </div>
+                        <div class="form-group" style="margin-bottom: 8px;">
+                            <label style="font-size: 0.8rem;"><i class="fa-solid fa-user-tie"></i> Vendedor / Atendente Responsável:</label>
+                            <select id="pdv-vendedor" required>
+                                <option value="Dr. Carlos Farmacêutico">Dr. Carlos Farmacêutico</option>
+                                <option value="João Balconista">João Balconista</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 8px;">
+                            <input type="text" id="pdv-cliente" placeholder="Nome do Cliente (Opcional)">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 8px;">
+                            <input type="text" id="pdv-cpf" placeholder="CPF na Nota (Opcional)">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 8px;">
+                            <label style="font-size: 0.8rem;"><input type="checkbox" id="pdv-farmacia-popular" onchange="atualizarCarrinho()"> Subsídio Farmácia Popular (-50%)</label>
+                        </div>
+                        <div class="cart-items" id="cart-items-container">
+                            <p class="empty-cart-msg">Carrinho vazio</p>
+                        </div>
+                        <div class="cart-summary">
+                            <div class="summary-row">
+                                <span>Subtotal:</span>
+                                <span id="cart-subtotal">R$ 0,00</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Desconto (%):</span>
+                                <input type="number" id="cart-discount" value="0" min="0" max="100" onchange="atualizarCarrinho()">
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total a Pagar:</span>
+                                <span id="cart-total">R$ 0,00</span>
+                            </div>
+                        </div>
+                        <div class="cart-actions">
+                            <button class="btn btn-emerald" onclick="verificarAntesFinalizar()"><i class="fa-solid fa-check"></i> Finalizar Venda</button>
+                            <button class="btn btn-outline" onclick="limparCarrinho()"><i class="fa-solid fa-trash"></i> Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 3: GESTÃO DE CAIXA & RELATÓRIOS -->
+            <section id="tab-caixa" class="tab-pane">
+                <div class="card float-card" style="max-width: 800px; margin: 0 auto;">
+                    <h3><i class="fa-solid fa-vault"></i> Gestão de Caixa, Turno & Relatórios Térmicos</h3>
+                    
+                    <div id="caixa-status-box" class="caixa-box-info" style="margin-top: 15px;">
+                        <h2 id="caixa-estado-titulo">CAIXA FECHADO</h2>
+                        <p>Horário Abertura: <strong id="caixa-hora-abertura">--:--</strong></p>
+                        <p>Fundo de Troco Inicial: <strong id="caixa-saldo-inicial">R$ 0,00</strong></p>
+                        <p>Vendas em Dinheiro: <strong id="caixa-vendas-dinheiro">R$ 0,00</strong></p>
+                        <p>Vendas em PIX/Cartão/Convênio: <strong id="caixa-vendas-outros">R$ 0,00</strong></p>
+                        <p>Total Acumulado em Espécie: <strong id="caixa-total-atual">R$ 0,00</strong></p>
+                    </div>
+
+                    <!-- Relatório de Produtos Vendidos no Turno -->
+                    <div id="caixa-relatorio-produtos-box" style="margin-top: 20px; display: none;">
+                        <h4 style="margin-bottom: 10px; color: var(--primary);"><i class="fa-solid fa-boxes-stacked"></i> Quantidade de Produtos Vendidos neste Turno:</h4>
+                        <div class="table-container" style="max-height: 220px; overflow-y: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Medicamento / Produto</th>
+                                        <th>Qtd Vendida</th>
+                                        <th>Total Faturado (R$)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="caixa-produtos-vendidos-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="caixa-controles-aberto" style="display: none; margin-top: 20px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button class="btn btn-outline flex-1" onclick="abrirModalSangria()"><i class="fa-solid fa-hand-holding-dollar"></i> Sangria</button>
+                        <button class="btn btn-outline flex-1" onclick="imprimirRelatorioSimples()"><i class="fa-solid fa-print"></i> Relatório Simples</button>
+                        <button class="btn btn-outline flex-1" onclick="imprimirRelatorioDetalhado()"><i class="fa-solid fa-file-invoice"></i> Relatório Detalhado</button>
+                        <button class="btn btn-danger flex-1" onclick="fecharCaixaSistema()"><i class="fa-solid fa-lock"></i> Fechar Caixa</button>
+                    </div>
+
+                    <div id="caixa-controles-fechado" style="margin-top: 20px;">
+                        <div class="form-group">
+                            <label>Valor do Fundo de Troco (R$):</label>
+                            <input type="number" id="input-fundo-troco" placeholder="100.00" value="100.00">
+                        </div>
+                        <button class="btn btn-emerald full-width" onclick="abrirCaixaSistema()"><i class="fa-solid fa-lock-open"></i> Abrir Turno do Caixa</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 4: ESTOQUE, LOTES & SNGPC -->
+            <section id="tab-estoque" class="tab-pane">
+                <div class="card float-card">
+                    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3><i class="fa-solid fa-warehouse"></i> Controle de Estoque, Lotes e Validade (SNGPC)</h3>
+                        <div class="header-actions" style="display:flex; gap:10px;">
+                            <button class="btn btn-emerald" onclick="abrirModalNovoProduto()"><i class="fa-solid fa-plus"></i> Novo Medicamento</button>
+                            <button class="btn btn-whatsapp" onclick="abrirModalOrcamento()"><i class="fa-brands fa-whatsapp"></i> Orçamento WhatsApp</button>
+                        </div>
+                    </div>
+                    <div class="search-bar margin-top">
+                        <i class="fa-solid fa-filter"></i>
+                        <input type="text" id="stock-search" placeholder="Filtrar por nome, lote, tarja ou categoria..." onkeyup="renderizarEstoque()">
+                    </div>
+                    <div class="table-container margin-top">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Foto</th>
+                                    <th>Cód. EAN</th>
+                                    <th>Medicamento / Produto</th>
+                                    <th>Categoria</th>
+                                    <th>Tarja</th>
+                                    <th>Lote</th>
+                                    <th>Validade</th>
+                                    <th>Preço (R$)</th>
+                                    <th>Estoque</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stock-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 5: CURVA ABC -->
+            <section id="tab-curvaabc" class="tab-pane">
+                <div class="card float-card">
+                    <h3><i class="fa-solid fa-chart-column"></i> Curva ABC de Medicamentos & Giro de Estoque</h3>
+                    <p class="text-muted" style="margin-bottom: 15px;">Classificação automática dos produtos mais rentáveis (Curva A) até os de menor giro (Curva C).</p>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Classificação</th>
+                                    <th>Medicamento</th>
+                                    <th>Estoque Atual</th>
+                                    <th>Preço Unitário</th>
+                                    <th>Impacto no Faturamento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="abc-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 5.1: COMISSÕES DE VENDEDORES -->
+            <section id="tab-comissoes" class="tab-pane">
+                <div class="card float-card">
+                    <h3><i class="fa-solid fa-percent"></i> Cálculo de Comissões de Vendedores (Baseado nas Vendas)</h3>
+                    <p class="text-muted" style="margin-bottom: 20px;">O sistema calcula a comissão com base exata nas vendas registradas por cada colaborador no PDV.</p>
+                    
+                    <div style="display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px;">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label>Percentual de Comissão Padrão (%):</label>
+                            <input type="number" id="input-comissao-perc" value="5" step="0.5" min="0" max="100" onchange="renderizarComissoes()">
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Colaborador / Vendedor</th>
+                                    <th>Total de Vendas Realizadas (R$)</th>
+                                    <th>Comissão (%)</th>
+                                    <th>Total a Receber (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comissoes-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 5.2: SORTEIO DE PRODUTOS -->
+            <section id="tab-sorteio" class="tab-pane">
+                <div class="card float-card" style="max-width: 750px; margin: 0 auto; text-align: center;">
+                    <h3><i class="fa-solid fa-gift"></i> Sorteio de Produtos para Clientes Cadastrados</h3>
+                    <p class="text-muted" style="margin-bottom: 25px;">Escolha um prêmio do estoque e realize um sorteio surpresa entre todos os clientes da farmácia!</p>
+                    
+                    <div class="form-group text-center" style="text-align: left;">
+                        <label>Selecione o Produto / Prêmio:</label>
+                        <select id="sorteio-produto-select"></select>
+                    </div>
+
+                    <button class="btn btn-emerald full-width margin-top" style="padding: 15px; font-size: 1.1rem;" onclick="realizarSorteioCliente()"><i class="fa-solid fa-wand-magic-sparkles"></i> Sortear Cliente Vencedor Agora!</button>
+
+                    <div id="resultado-sorteio-box" style="display: none; margin-top: 30px; background: var(--emerald-light); padding: 25px; border-radius: var(--radius); border: 2px dashed var(--primary);">
+                        <i class="fa-solid fa-trophy" style="font-size: 3rem; color: var(--primary); margin-bottom: 10px;"></i>
+                        <h2 id="sorteio-vencedor-nome" style="color: var(--primary); margin-bottom: 8px;">Cliente Vencedor</h2>
+                        <p id="sorteio-detalhes-premio" style="font-size: 1.05rem;"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 5.3: ORÇAMENTO EXCLUSIVO PARA CLIENTES VIA WHATSAPP -->
+            <section id="tab-orcamentocliente" class="tab-pane">
+                <div class="card float-card" style="max-width: 720px; margin: 0 auto;">
+                    <div class="text-center" style="margin-bottom: 20px;">
+                        <i class="fa-brands fa-whatsapp" style="font-size: 3.5rem; color: var(--whatsapp); margin-bottom: 8px;"></i>
+                        <h2>Monte seu Orçamento Online</h2>
+                        <p class="text-muted">Selecione os medicamentos desejados (sincronizados em tempo real com o estoque da farmácia), informe seus dados e envie direto para o nosso WhatsApp.</p>
+                    </div>
+
+                    <div class="client-link-generator-box" style="background: var(--light); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #cbd5e1; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="font-size: 0.9rem;"><i class="fa-solid fa-link"></i> Link Exclusivo para o Cliente:</strong>
+                            <p id="client-shareable-url" style="font-size: 0.8rem; color: var(--slate); word-break: break-all; margin-top: 2px;"></p>
+                        </div>
+                        <button class="btn btn-outline" style="padding: 8px 12px; white-space: nowrap;" onclick="copiarLinkOrcamentoCliente()"><i class="fa-solid fa-copy"></i> Copiar Link</button>
+                    </div>
+
+                    <form onsubmit="enviarOrcamentoClientePublico(event)">
+                        <div class="form-group">
+                            <label>Seu Nome Completo:</label>
+                            <input type="text" id="cli-orc-nome" required placeholder="Ex: Maria Souza">
+                        </div>
+                        <div class="form-group">
+                            <label>Seu WhatsApp com DDD:</label>
+                            <input type="text" id="cli-orc-fone" required placeholder="Ex: 5577999999999">
+                        </div>
+                        <div class="form-group">
+                            <label>Catálogo de Medicamentos Disponíveis (Estoque Atualizado):</label>
+                            <div class="checkbox-list" id="public-budget-product-list" style="max-height: 250px;"></div>
+                        </div>
+                        <button type="submit" class="btn btn-whatsapp full-width margin-top" style="padding: 14px; font-size: 1.05rem;"><i class="fa-brands fa-whatsapp"></i> Enviar Orçamento para o WhatsApp da Farmácia</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 6: FUNCIONÁRIOS & PERMISSÕES -->
+            <section id="tab-funcionarios" class="tab-pane">
+                <div class="card float-card">
+                    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3><i class="fa-solid fa-user-tie"></i> Gestão de Funcionários & Controle de Permissões</h3>
+                        <button class="btn btn-emerald" onclick="abrirModalNovoFuncionario()"><i class="fa-solid fa-user-plus"></i> Novo Funcionário</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome Completo</th>
+                                    <th>Cargo / Perfil</th>
+                                    <th>Usuário</th>
+                                    <th>Permissões Ativas</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employees-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 7: COMPRAS & FORNECEDORES -->
+            <section id="tab-compras" class="tab-pane">
+                <div class="card float-card">
+                    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3><i class="fa-solid fa-truck-ramp-box"></i> Gestão de Fornecedores & Reposição de Estoque</h3>
+                        <button class="btn btn-emerald" onclick="abrirModalNovoFornecedor()"><i class="fa-solid fa-plus"></i> Cadastrar Fornecedor</button>
+                    </div>
+                    <div class="table-container margin-top">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Laboratório / Distribuidora</th>
+                                    <th>CNPJ</th>
+                                    <th>Contato</th>
+                                    <th>Prazo Entrega</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="suppliers-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 8: CLIENTES & CREDIÁRIO -->
+            <section id="tab-clientes" class="tab-pane">
+                <div class="card float-card">
+                    <div class="section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3><i class="fa-solid fa-users"></i> Carteira de Clientes & Convênios</h3>
+                        <button class="btn btn-emerald" onclick="abrirModalNovoCliente()"><i class="fa-solid fa-user-plus"></i> Novo Cliente</button>
+                    </div>
+                    <div class="table-container margin-top">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome do Cliente</th>
+                                    <th>CPF</th>
+                                    <th>Telefone</th>
+                                    <th>Convênio / Empresa</th>
+                                    <th>Limite Crédito (R$)</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 8.1: DADOS DA EMPRESA & PIX -->
+            <section id="tab-empresa" class="tab-pane">
+                <div class="card float-card" style="max-width: 680px; margin: 0 auto;">
+                    <h3><i class="fa-solid fa-building"></i> Configurações da Empresa & Chave PIX</h3>
+                    <p class="text-muted" style="margin-bottom: 20px;">Edite as informações cadastrais e configure a Chave PIX e QR Code (protegido por senha).</p>
+                    <form onsubmit="salvarDadosEmpresa(event)">
+                        <h4 style="margin-bottom: 12px; color: var(--primary);"><i class="fa-solid fa-id-card"></i> Dados Cadastrais</h4>
+                        <div class="form-group">
+                            <label>Razão Social / Nome Fantasia:</label>
+                            <input type="text" id="empresa-nome" required placeholder="PharmaControl Enterprise">
+                        </div>
+                        <div class="form-group">
+                            <label>CNPJ:</label>
+                            <input type="text" id="empresa-cnpj" required placeholder="12.345.678/0001-90">
+                        </div>
+                        <div class="form-group">
+                            <label>Endereço Completo:</label>
+                            <input type="text" id="empresa-endereco" required placeholder="Av. Lindolfo Azevedo Brito, Brumado - BA">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone:</label>
+                            <input type="text" id="empresa-fone" required placeholder="(77) 3441-0000">
+                        </div>
+                        <div class="form-group">
+                            <label>Farmacêutico Responsável Técnico (CRF):</label>
+                            <input type="text" id="empresa-crf" required placeholder="Dr. Carlos - CRF-BA 12345">
+                        </div>
+
+                        <hr style="margin: 25px 0; border: dashed 1px #cbd5e1;">
+
+                        <h4 style="margin-bottom: 12px; color: var(--whatsapp);"><i class="fa-solid fa-qrcode"></i> Configuração PIX & QR Code</h4>
+                        <div class="form-group">
+                            <label>Chave PIX (CNPJ, E-mail ou Telefone):</label>
+                            <input type="text" id="empresa-pix-chave" required placeholder="farmacia@pharmacontrol.com.br">
+                        </div>
+                        <div class="form-group">
+                            <label>URL / Imagem do QR Code PIX:</label>
+                            <input type="text" id="empresa-pix-qrcode" placeholder="Cole a URL da imagem do QR Code">
+                        </div>
+                        <div class="pix-preview-box text-center" style="margin: 15px 0; background: var(--light); padding: 15px; border-radius: 8px;">
+                            <img id="preview-qr-img" src="" alt="QR Code PIX" style="max-width: 120px; display: none; margin: 0 auto 8px auto;">
+                            <p style="font-size: 0.85rem;" id="preview-pix-text">Chave: Ativa</p>
+                        </div>
+
+                        <button type="submit" class="btn btn-emerald full-width margin-top">Salvar Configurações (Exige Senha)</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 9: RELATÓRIOS & DRE -->
+            <section id="tab-relatorios" class="tab-pane">
+                <div class="metrics-grid">
+                    <div class="metric-card float-card">
+                        <div class="metric-icon emerald"><i class="fa-solid fa-sack-dollar"></i></div>
+                        <div class="metric-info">
+                            <span>Faturamento Total</span>
+                            <h3 id="rel-faturamento">R$ 0,00</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card float-card">
+                        <div class="metric-icon blue"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="metric-info">
+                            <span>Lucro Bruto (40%)</span>
+                            <h3 id="rel-lucro">R$ 0,00</h3>
+                        </div>
+                    </div>
+                    <div class="metric-card float-card">
+                        <div class="metric-icon purple"><i class="fa-solid fa-receipt"></i></div>
+                        <div class="metric-info">
+                            <span>Ticket Médio</span>
+                            <h3 id="rel-ticket-medio">R$ 0,00</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="card float-card margin-top">
+                    <h3><i class="fa-solid fa-pie-chart"></i> Faturamento por Método de Pagamento</h3>
+                    <div id="relatorio-metodos-list" class="margin-top"></div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 10: HISTÓRICO DE VENDAS -->
+            <section id="tab-vendas" class="tab-pane">
+                <div class="card float-card">
+                    <h3><i class="fa-solid fa-receipt"></i> Relatório Completo de Transações e Vendas</h3>
+                    <div class="table-container margin-top">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID Venda</th>
+                                    <th>Data / Hora</th>
+                                    <th>Vendedor</th>
+                                    <th>Cliente</th>
+                                    <th>CPF</th>
+                                    <th>Pagamento</th>
+                                    <th>Valor Total</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sales-history-body">
+                                <tr><td colspan="8" class="text-center">Nenhuma venda registrada até o momento.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO 11: AVALIAÇÕES -->
+            <section id="tab-avaliacoes" class="tab-pane">
+                <div class="ratings-layout">
+                    <div class="card float-card">
+                        <h3><i class="fa-solid fa-pen-nib"></i> Registrar Avaliação de Cliente</h3>
+                        <form id="rating-form" onsubmit="enviarAvaliacao(event)">
+                            <div class="form-group">
+                                <label>Nome do Cliente</label>
+                                <input type="text" id="client-name" required placeholder="Ex: Maria Silva">
+                            </div>
+                            <div class="form-group">
+                                <label>Nota (1 a 5 Estrelas)</label>
+                                <select id="client-rating">
+                                    <option value="5">⭐⭐⭐⭐⭐ (Excelente)</option>
+                                    <option value="4">⭐⭐⭐⭐ (Muito Bom)</option>
+                                    <option value="3">⭐⭐⭐ (Bom)</option>
+                                    <option value="2">⭐⭐ (Regular)</option>
+                                    <option value="1">⭐ (Ruim)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Comentário</label>
+                                <textarea id="client-comment" rows="3" placeholder="Atendimento rápido e eficiente!"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-emerald full-width">Salvar Avaliação</button>
+                        </form>
+                    </div>
+                    <div class="card float-card">
+                        <h3><i class="fa-solid fa-comments"></i> Opinião dos Clientes</h3>
+                        <div class="reviews-list" id="reviews-container">
+                            <p class="text-muted">Nenhuma avaliação cadastrada.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAIS DO SISTEMA -->
+    <div id="camera-modal" class="modal">
+        <div class="modal-content float-card text-center">
+            <span class="close" onclick="fecharLeitorCamera()">&times;</span>
+            <h2><i class="fa-solid fa-camera"></i> Leitor de Código de Barras</h2>
+            <p class="text-muted" style="margin-bottom: 15px;">Aponte o código de barras do medicamento para a câmera:</p>
+            <div class="camera-simulation-box">
+                <i class="fa-solid fa-barcode" style="font-size: 5rem; color: var(--slate); animation: pulseBarcode 1.5s infinite;"></i>
+                <p style="margin-top: 15px;">Simulando bipe de leitura EAN-13...</p>
+            </div>
+            <button class="btn btn-emerald full-width margin-top" onclick="simularLeituraSucesso()">Simular Leitura Bem-Sucedida</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE SENHA DE AUTORIZAÇÃO -->
+    <div id="auth-modal" class="modal" style="z-index: 1005;">
+        <div class="modal-content float-card" style="max-width: 380px;">
+            <span class="close" onclick="fecharModalAuth()">&times;</span>
+            <div class="text-center" style="margin-bottom: 15px;">
+                <i class="fa-solid fa-shield-halved" style="font-size: 2.5rem; color: var(--danger); margin-bottom: 8px;"></i>
+                <h2>Autorização Exigida</h2>
+                <p class="text-muted" style="font-size: 0.85rem;" id="auth-modal-descricao">Esta operação requer senha de gerente ou colaborador autorizado.</p>
+            </div>
+            <form onsubmit="confirmarAutorizacaoSenha(event)">
+                <div class="form-group">
+                    <label>Senha de Acesso:</label>
+                    <input type="password" id="auth-password-input" required placeholder="Digite a senha">
+                </div>
+                <button type="submit" class="btn btn-emerald full-width margin-top">Autorizar Ação</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE FUNCIONÁRIO & PERMISSÕES -->
+    <div id="employee-modal" class="modal">
+        <div class="modal-content float-card" style="max-width: 550px;">
+            <span class="close" onclick="fecharModalFuncionario()">&times;</span>
+            <h2 id="employee-modal-title"><i class="fa-solid fa-user-tie"></i> Cadastrar Funcionário</h2>
+            <form onsubmit="salvarFuncionario(event)">
+                <input type="hidden" id="emp-id">
+                <div class="form-group">
+                    <label>Nome Completo:</label>
+                    <input type="text" id="emp-name" required placeholder="Ex: Dr. Carlos Silva">
+                </div>
+                <div class="row-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Cargo / Perfil:</label>
+                        <select id="emp-perfil">
+                            <option value="gerente">Gerente</option>
+                            <option value="farmaceutico">Farmacêutico</option>
+                            <option value="balconista">Balconista / Caixa</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status:</label>
+                        <select id="emp-status">
+                            <option value="Ativo">Ativo</option>
+                            <option value="Inativo">Inativo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group">
+                        <label>Usuário de Login:</label>
+                        <input type="text" id="emp-usuario" required placeholder="carlos.silva">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha:</label>
+                        <input type="password" id="emp-senha" required placeholder="******">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Registro Profissional / CRF (Opcional):</label>
+                    <input type="text" id="emp-crf" placeholder="Ex: CRF-BA 12345">
+                </div>
+
+                <div class="form-group" style="margin-top: 15px; background: var(--light); padding: 12px; border-radius: 8px;">
+                    <label style="font-weight: 700; margin-bottom: 8px; color: var(--primary);"><i class="fa-solid fa-key"></i> Autorizações e Permissões do Colaborador:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem;">
+                        <label><input type="checkbox" id="perm-estoque" checked> Gerenciar Estoque / Produtos</label>
+                        <label><input type="checkbox" id="perm-caixa" checked> Operar Frente de Caixa / PDV</label>
+                        <label><input type="checkbox" id="perm-cancelar"> Cancelar Vendas</label>
+                        <label><input type="checkbox" id="perm-relatorios"> Ver Relatórios e DRE</label>
+                        <label><input type="checkbox" id="perm-config"> Alterar Dados Empresa / PIX</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-emerald full-width margin-top">Salvar Funcionário</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE FORNECEDOR -->
+    <div id="supplier-modal" class="modal">
+        <div class="modal-content float-card">
+            <span class="close" onclick="fecharModalNovoFornecedor()">&times;</span>
+            <h2 id="supplier-modal-title"><i class="fa-solid fa-truck"></i> Cadastrar Fornecedor</h2>
+            <form onsubmit="salvarNovoFornecedor(event)">
+                <input type="hidden" id="sup-id">
+                <div class="form-group">
+                    <label>Nome do Laboratório / Distribuidora:</label>
+                    <input type="text" id="sup-name" required placeholder="Ex: Profarma Distribuidora">
+                </div>
+                <div class="form-group">
+                    <label>CNPJ:</label>
+                    <input type="text" id="sup-cnpj" required placeholder="00.000.000/0001-00">
+                </div>
+                <div class="form-group">
+                    <label>Telefone de Contato:</label>
+                    <input type="text" id="sup-fone" required placeholder="(77) 99999-9999">
+                </div>
+                <div class="form-group">
+                    <label>Prazo Médio de Entrega:</label>
+                    <input type="text" id="sup-prazo" required placeholder="2 dias úteis">
+                </div>
+                <button type="submit" class="btn btn-emerald full-width">Salvar Fornecedor</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE CLIENTE -->
+    <div id="client-modal" class="modal">
+        <div class="modal-content float-card">
+            <span class="close" onclick="fecharModalNovoCliente()">&times;</span>
+            <h2 id="client-modal-title"><i class="fa-solid fa-user-plus"></i> Cadastrar Cliente / Convênio</h2>
+            <form onsubmit="salvarNovoCliente(event)">
+                <input type="hidden" id="cli-index">
+                <div class="form-group">
+                    <label>Nome Completo:</label>
+                    <input type="text" id="cli-name" required placeholder="Ex: João da Silva">
+                </div>
+                <div class="form-group">
+                    <label>CPF:</label>
+                    <input type="text" id="cli-cpf" required placeholder="000.000.000-00">
+                </div>
+                <div class="form-group">
+                    <label>Telefone:</label>
+                    <input type="text" id="cli-fone" required placeholder="Ex: (77) 98888-8888">
+                </div>
+                <div class="form-group">
+                    <label>Convênio / Empresa:</label>
+                    <input type="text" id="cli-convenio" placeholder="Ex: Prefeitura Municipal / Particular">
+                </div>
+                <div class="form-group">
+                    <label>Limite de Crédito Aprovado (R$):</label>
+                    <input type="number" step="0.01" id="cli-limite" required placeholder="500.00">
+                </div>
+                <button type="submit" class="btn btn-emerald full-width">Salvar Cliente</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="prescription-modal" class="modal">
+        <div class="modal-content float-card">
+            <span class="close" onclick="fecharModalReceituario()">&times;</span>
+            <h2><i class="fa-solid fa-file-prescription"></i> Retenção de Receita (ANVISA / SNGPC)</h2>
+            <p class="text-muted" style="margin-bottom: 12px; font-size:0.85rem;">Medicamentos controlados detectados. Informe os dados regulatórios:</p>
+            <div class="form-group">
+                <label>Tipo de Receita:</label>
+                <select id="rx-tipo">
+                    <option value="Receita Branca C1">Receita Branca C1 (Outras substâncias)</option>
+                    <option value="Notificação B (Azul)">Notificação B - Azul (Psicotrópicos)</option>
+                    <option value="Notificação A (Amarela)">Notificação A - Amarela (Entorpecentes)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nome Completo do Paciente:</label>
+                <input type="text" id="rx-paciente" placeholder="Paciente">
+            </div>
+            <div class="form-group">
+                <label>Nome do Prescritor (Médico):</label>
+                <input type="text" id="rx-medico" placeholder="Dr. Nome do Médico">
+            </div>
+            <div class="form-group">
+                <label>CRM / Estado:</label>
+                <input type="text" id="rx-crm" placeholder="Ex: CRM-BA 123456">
+            </div>
+            <div class="form-group">
+                <label>Número da Notificação / Lote Receita:</label>
+                <input type="text" id="rx-notificacao" placeholder="Ex: NOT-998877">
+            </div>
+            <button class="btn btn-emerald full-width margin-top" onclick="validarReceituarioEProsseguir()">Validar Receita e Continuar</button>
+        </div>
+    </div>
+
+    <div id="payment-modal" class="modal">
+        <div class="modal-content float-card">
+            <span class="close" onclick="fecharModalPagamento()">&times;</span>
+            <h2><i class="fa-solid fa-cash-register"></i> Selecione a Forma de Pagamento</h2>
+            <div class="payment-tabs">
+                <button class="pay-tab active" onclick="selecionarMetodo('pix')"><i class="fa-solid fa-qrcode"></i> PIX</button>
+                <button class="pay-tab" onclick="selecionarMetodo('cartao')"><i class="fa-solid fa-credit-card"></i> Cartão</button>
+                <button class="pay-tab" onclick="selecionarMetodo('dinheiro')"><i class="fa-solid fa-money-bill-wave"></i> Dinheiro</button>
+                <button class="pay-tab" onclick="selecionarMetodo('convenio')"><i class="fa-solid fa-building-user"></i> Convênio</button>
+            </div>
+            
+            <div id="pay-content-pix" class="pay-section active">
+                <div class="qrcode-box" style="text-align: center; padding: 15px;">
+                    <img id="modal-pix-qrcode-img" src="" alt="QR Code PIX" style="max-width: 140px; display: none; margin: 0 auto 10px auto;">
+                    <i class="fa-solid fa-qrcode qr-icon" id="modal-pix-fallback-icon"></i>
+                    <small id="modal-pix-key-label">Chave PIX: farmacia@pharmacontrol.com.br</small>
+                </div>
+                <p class="text-center">Total a Pagar: <strong id="pix-modal-value">R$ 0,00</strong></p>
+            </div>
+
+            <div id="pay-content-cartao" class="pay-section" style="display:none;">
+                <div class="machine-box"><i class="fa-solid fa-credit-card"></i> <span>Aguardando leitura do cartão na maquininha...</span></div>
+                <p class="text-center">Total a Pagar: <strong id="cartao-modal-value">R$ 0,00</strong></p>
+            </div>
+
+            <div id="pay-content-dinheiro" class="pay-section" style="display:none;">
+                <div class="form-group">
+                    <label>Valor Recebido do Cliente (R$):</label>
+                    <input type="number" id="dinheiro-recebido" placeholder="0.00" onkeyup="calcularTroco()">
+                </div>
+                <p>Troco: <strong id="troco-calculado">R$ 0,00</strong></p>
+            </div>
+
+            <div id="pay-content-convenio" class="pay-section" style="display:none;">
+                <div class="form-group">
+                    <label>Empresa / Convênio Autorizado:</label>
+                    <input type="text" id="convenio-nome" placeholder="Ex: Prefeitura Municipal / Empresa Parceira">
+                </div>
+                <div class="form-group">
+                    <label>Matrícula do Funcionário:</label>
+                    <input type="text" id="convenio-matricula" placeholder="Ex: MAT-4589">
+                </div>
+            </div>
+
+            <button class="btn btn-emerald full-width margin-top" onclick="confirmarPagamentoFinal()">Confirmar e Emitir Cupom</button>
+        </div>
+    </div>
+
+    <div id="receipt-modal" class="modal">
+        <div class="modal-content receipt-content float-card">
+            <span class="close no-print" onclick="fecharModalRecibo()">&times;</span>
+            <div class="receipt-header text-center" id="receipt-header-box">
+                <div style="font-size: 1.8rem; color: var(--primary); margin-bottom: 4px;"><i class="fa-solid fa-square-plus"></i></div>
+                <h3 id="rec-empresa-nome" style="font-size: 1.1rem; font-weight: 800;">PHARMACONTROL</h3>
+                <small id="rec-empresa-cnpj">CNPJ: 12.345.678/0001-90</small><br>
+                <small id="rec-empresa-end">Av. Lindolfo Azevedo Brito, Brumado - BA</small><br>
+                <small id="rec-empresa-tel">Tel: (77) 3441-0000</small>
+                <hr style="margin: 8px 0; border: dashed 1px #cbd5e1;">
+                <h4 id="rec-titulo-documento">CUPOM NÃO FISCAL - PDV</h4>
+            </div>
+            <div id="receipt-body" style="font-size: 0.85rem; margin: 12px 0;"></div>
+            <button class="btn btn-emerald full-width no-print" onclick="window.print()"><i class="fa-solid fa-print"></i> Imprimir Cupom Térmico</button>
+        </div>
+    </div>
+
+    <div id="sangria-modal" class="modal">
+        <div class="modal-content float-card">
+            <span class="close" onclick="fecharModalSangria()">&times;</span>
+            <h2><i class="fa-solid fa-hand-holding-dollar"></i> Sangria / Retirada do Caixa</h2>
+            <div class="form-group">
+                <label>Valor Retirado (R$):</label>
+                <input type="number" id="sangria-valor" placeholder="0.00">
+            </div>
+            <div class="form-group">
+                <label>Motivo da Retirada:</label>
+                <input type="text" id="sangria-motivo" placeholder="Ex: Pagamento de Fornecedor / Fundo">
+            </div>
+            <button class="btn btn-emerald full-width" onclick="realizarSangria()">Confirmar Retirada</button>
+        </div>
+    </div>
+
+    <div id="budget-modal" class="modal">
+        <div class="modal-content float-card">
+            <span class="close" onclick="fecharModalOrcamento()">&times;</span>
+            <h2><i class="fa-brands fa-whatsapp"></i> Gerar Orçamento para WhatsApp</h2>
+            <div class="form-group">
+                <label>Nome do Cliente:</label>
+                <input type="text" id="orc-cliente" placeholder="Nome">
+            </div>
+            <div class="form-group">
+                <label>WhatsApp com DDD:</label>
+                <input type="text" id="orc-fone" placeholder="Ex: 5577999999999">
+            </div>
+            <div class="form-group">
+                <label>Selecione os Produtos:</label>
+                <div class="checkbox-list" id="budget-product-list"></div>
+            </div>
+            <button class="btn btn-whatsapp full-width" onclick="enviarOrcamentoWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Enviar pelo WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CADASTRO / EDIÇÃO DE MEDICAMENTOS & FOTOS -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content float-card">
+            <span class="close" onclick="fecharModalNovoProduto()">&times;</span>
+            <h2 id="product-modal-title"><i class="fa-solid fa-pills"></i> Cadastrar / Editar Medicamento</h2>
+            <form onsubmit="salvarNovoProduto(event)">
+                <input type="hidden" id="prod-edit-id">
+                <div class="form-group">
+                    <label>Nome Comercial:</label>
+                    <input type="text" id="new-name" required placeholder="Ex: Dorflex 36 Comprimidos">
+                </div>
+                <div class="form-group">
+                    <label>Categoria:</label>
+                    <input type="text" id="new-cat" required placeholder="Ex: Relaxante Muscular">
+                </div>
+                <div class="form-group">
+                    <label>Classificação / Tarja:</label>
+                    <select id="new-tarja">
+                        <option value="Livre">Livre (Sem Tarja)</option>
+                        <option value="Vermelha">Tarja Vermelha</option>
+                        <option value="Preta">Tarja Preta (Controlado SNGPC)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fa-solid fa-image"></i> URL da Imagem / Foto do Produto:</label>
+                    <input type="text" id="new-imagem" placeholder="https://exemplo.com/imagem-remedio.jpg">
+                    <small class="text-muted">Cole o link direto da imagem da internet para atualizar a foto.</small>
+                </div>
+                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label>Número do Lote:</label>
+                        <input type="text" id="new-lote" required placeholder="Ex: L-9021">
+                    </div>
+                    <div>
+                        <label>Validade:</label>
+                        <input type="date" id="new-validade" required>
+                    </div>
+                </div>
+                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label>Preço de Venda (R$):</label>
+                        <input type="number" step="0.01" id="new-price" required placeholder="0.00">
+                    </div>
+                    <div>
+                        <label>Quantidade em Estoque:</label>
+                        <input type="number" id="new-stock" required placeholder="30">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-emerald full-width margin-top" id="btn-salvar-produto">Salvar Alterações (Exige Senha)</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script Externo -->
+    <script src="script.js"></script>
+</body>
+</html>
